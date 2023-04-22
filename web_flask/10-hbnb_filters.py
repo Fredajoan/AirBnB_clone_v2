@@ -1,53 +1,31 @@
-<!DOCTYPE html>
-<HTML lang="en">
-  <HEAD>
-    <META charset="utf-8">
-    <TITLE>AirBnB clone</TITLE>
-    <LINK rel="stylesheet" href="../static/styles/reset.css">
-    <LINK rel="stylesheet" href="../static/styles/4-common.css">
-    <LINK rel="stylesheet" href="../static/styles/3-header.css">
-    <LINK rel="stylesheet" href="../static/styles/3-footer.css">
-    <LINK rel="stylesheet" href="../static/styles/6-filters.css">
-    <LINK rel="icon" href="../static/images/icon.png">
-  </HEAD>
+#!/usr/bin/python3
+"""Starts a Flask web application.
 
-  <BODY>
-    <HEADER></HEADER>
+The application listens on 0.0.0.0, port 5000.
+Routes:
+    /hbnb_filters: HBnB HTML filters page.
+"""
+from models import storage
+from flask import Flask
+from flask import render_template
 
-    <DIV class="container">
-      <SECTION class="filters">
-        <DIV class="locations">
-          <H3>States</H3>
-          <H4>&nbsp;</H4>
-          <DIV class="popover">
-            <UL>
-            {% for state in states.values()|sort(attribute="name") %}
-              <LI><STRONG>{{ state.name }}</STRONG>
-                <UL>
-                {% for city in state.cities|sort(attribute="name") %}
-                  <LI>{{ city.name }}</LI>
-                {% endfor %}
-                </UL>
-              </LI>
-            {% endfor %}
-            </UL>
-          </DIV>
+app = Flask(__name__)
 
-        </DIV><DIV class="amenities">
-          <H3>Amenities</H3>
-          <H4>&nbsp;</H4>
-          <UL class="popover">
-          {% for amenity in amenities.values()|sort(attribute="name") %}
-            <LI>{{ amenity.name }}</LI>
-          {% endfor %}
-          </UL>
-        </DIV>
-        <BUTTON>Search</BUTTON>
-      </SECTION>
-    </DIV>
 
-    <FOOTER>
-      Holberton School
-    </FOOTER>
-  </BODY>
-</HTML>
+@app.route("/hbnb_filters", strict_slashes=False)
+def hbnb_filters():
+    """Displays the main HBnB filters HTML page."""
+    states = storage.all("State")
+    amenities = storage.all("Amenity")
+    return render_template("10-hbnb_filters.html",
+                           states=states, amenities=amenities)
+
+
+@app.teardown_appcontext
+def teardown(exc):
+    """Remove the current SQLAlchemy session."""
+    storage.close()
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0")
